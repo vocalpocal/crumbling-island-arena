@@ -764,6 +764,9 @@
 		"ModifierTooltip_modifier_invoker_e_target"				"Will get silenced if casts a spell"
 
 		"ModifierTooltip_modifier_tinker_q"						"Disarmed"
+		"ModifierTooltip_modifier_tinker_portal_cd"				"Blue portal CD"
+		"ModifierTooltip_modifier_tinker_portal_cd_sub"			"Orange portal CD"
+		
 
 		"ModifierTooltip_modifier_slark_a"						"Will return stolen health"
 		"ModifierTooltip_modifier_slark_q"						"Slowed"
