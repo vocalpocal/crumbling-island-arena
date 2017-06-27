@@ -88,45 +88,35 @@ function TinkerUtil.PortalAbility(ability, isPrimary, swapTo, startEffect, effec
         if not IsServer() then return UF_SUCCESS end
 
         if not Spells.TestPoint(location) then
-            return UF_FAIL_CUSTOM, nil
+            return UF_FAIL_CUSTOM
         end
 
         local portal = TinkerUtil.FindPortal(self:GetCaster().hero, not isPrimary)
 
         if not portal then
-            return UF_SUCCESS, nil
+            return UF_SUCCESS
         end
 
         local pos = portal:GetPos()
         if (pos - location):Length2D() <= 300 then
             return UF_FAIL_CUSTOM, "close"
         end
-        if (pos - location):Length2D() >= 1500 then
-            return UF_FAIL_CUSTOM, "far"
-        end
 
         return UF_SUCCESS
     end
 
     function ability:GetCustomCastErrorLocation(location)
-        if not Spells.TestPoint(location) then
-            return "#dota_hud_error_tinker_portal_outside"
-        end
-
-        local result, result2 = self:CastFilterResultLocation(location)
-
-        if result == UF_FAIL_CUSTOM then
-            if result2 == "far" then
-                return "#dota_hud_error_tinker_portal_too_far"
-            else
-                if result2 == "close" then
-                    return "#dota_hud_error_tinker_portal_too_close"
-                end
+            if not Spells.TestPoint(location) then
+                return "#dota_hud_error_tinker_portal_outside"
             end
 
-        end
+            local result = self:CastFilterResultLocation(location)
 
-        return ""
+            if result == UF_FAIL_CUSTOM then
+                return "#dota_hud_error_tinker_portal_too_close"
+            end
+
+            return ""
     end
 
     function ability:OnSpellStart()
