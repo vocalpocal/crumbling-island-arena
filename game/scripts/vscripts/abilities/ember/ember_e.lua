@@ -14,8 +14,7 @@ function ember_e:OnSpellStart()
             ability = self,
             action = function(target)
                 if EmberUtil.Burn(hero, target, self) then
-                    hero:FindAbility("ember_e"):EndCooldown()
-                    hero:EmitSound("Arena.Ember.HitE")
+                    target:AddNewModifier(hero, self, "modifier_stunned_lua", { duration = 1.0 })
                 end
             end
         }
