@@ -53,6 +53,7 @@ function TinkerUtil.PortalAbility(ability, isPrimary, swapTo, startEffect, effec
     LinkLuaModifier("modifier_tinker_portal_cd", "abilities/tinker/modifier_tinker_portal_cd", LUA_MODIFIER_MOTION_NONE)
     LinkLuaModifier("modifier_tinker_portal_cd_sub", "abilities/tinker/modifier_tinker_portal_cd_sub", LUA_MODIFIER_MOTION_NONE)
 
+    -- Sets up the CD indicator for both portal skills
     function ability:GetIntrinsicModifierName()
         if isPrimary then
             return "modifier_tinker_portal_cd"
@@ -133,10 +134,7 @@ function TinkerUtil.PortalAbility(ability, isPrimary, swapTo, startEffect, effec
         local target = self:GetCursorPosition()
         local first = TinkerUtil.FindPortal(self:GetCaster().hero, isPrimary)
 
-
-        local cd = self:GetCooldown(1)
-
-
+        -- Updates the CD indicator
         if isPrimary then
             local modifier = hero:FindModifier("modifier_tinker_portal_cd")
             modifier:SetDuration(self:GetCooldown(1), true)
@@ -144,7 +142,6 @@ function TinkerUtil.PortalAbility(ability, isPrimary, swapTo, startEffect, effec
             local modifier = hero:FindModifier("modifier_tinker_portal_cd_sub")
             modifier:SetDuration(self:GetCooldown(1), true)
         end
-
 
         ScreenShake(target, 5, 150, 0.25, 3000, 0, true)
 
@@ -193,7 +190,6 @@ function TinkerUtil.PortalCancelAbility(ability, isPrimary, swapTo)
     function ability:OnSpellStart()
         local hero = self:GetCaster():GetParentEntity()
         local portal = TinkerUtil.FindPortal(hero, isPrimary)
-        --hero:FindModifier("modifier_tinker_portal_cd"):Destroy()
 
         if portal then
             portal:Destroy()
