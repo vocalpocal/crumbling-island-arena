@@ -1,4 +1,4 @@
-GRACE_TIME = 1
+GRACE_TIME = 1.5
 ULTS_TIME = 40
 
 Round = Round or class({})
@@ -13,25 +13,26 @@ function Round:constructor(players, teams, availableHeroes, callback)
     self.teams = teams
     self.availableHeroes = availableHeroes
 
+    self.isTryingToEnd = false
+    self.timeRemainingUntilEnd = 0
+
     self.spells = Spells()
     self.statistics = Statistics(players)
     self.runeTimer = 25 * 30
-    self.rune = nil
+
     self.runeParticleParams = {"particles/rune_marker.vpcf", PATTACH_ABSORIGIN, GameRules:GetGameModeEntity(), {
         cp0 = Vector(0, 0, 32),
         cp1 = Vector(200, 0, 0),
         release = false
     }}
+
+    self.rune = nil
     self.runeParticle = FX(unpack(self.runeParticleParams))
 end
 
-function Round:CheckEndConditions()
-    if self.ended then
-        return
-    end
-
+function Round:GetLastOrNoneAlive()
     local teams = {}
-    
+
     for _, player in pairs(self.players) do
         if player:IsConnected() and (player.hero and not player.hero.unit:IsNull() and player.hero:Alive()) then
             teams[player.team] = true
@@ -39,17 +40,33 @@ function Round:CheckEndConditions()
     end
 
     local amountAlive = 0
-    local lastAlive = nil
+    local lastAlive
 
     for team, _ in pairs(teams) do
         amountAlive = amountAlive + 1
         lastAlive = team
     end
 
-    if amountAlive <= 1 then
-        self.winner = lastAlive
-        self:EndRound()
+    return lastAlive, amountAlive
+end
+
+function Round:IsAnyoneFalling()
+    for _, player in pairs(self.players) do
+        if player:IsConnected() and (player.hero and not player.hero.unit:IsNull() and player.hero:Alive()) and player.hero.falling then
+            return true
+        end
     end
+
+    return false
+end
+
+function Round:CheckEndConditions()
+    if self.ended then
+        return
+    end
+
+    local lastAlive, amountAlive = self:GetLastOrNoneAlive()
+    return amountAlive <= 1
 end
 
 function Round:EndRound()
@@ -59,11 +76,9 @@ function Round:EndRound()
         end
     end
 
+    self.isTryingToEnd = false
     self.ended = true
-
-    Timers:CreateTimer(GRACE_TIME, function()
-        self:callback()
-    end)
+    self:callback()
 end
 
 function Round:Update()
@@ -92,9 +107,31 @@ function Round:Update()
         end
     end
 
+    -- End conditions and stuff under there
+    if self.ended then
+        return
+    end
+
+    if self.isTryingToEnd then
+        if not self:IsAnyoneFalling() then
+            self.timeRemainingUntilEnd = self.timeRemainingUntilEnd - FrameTime()
+        end
+
+        if self.timeRemainingUntilEnd <= 0 then
+            local lastAlive, amountAlive = self:GetLastOrNoneAlive()
+
+            self.winner = lastAlive
+            self:EndRound()
+        end
+    end
+
     if self.entityDied then
         self.entityDied = false
-        self:CheckEndConditions()
+
+        if self:CheckEndConditions() then
+            self.isTryingToEnd = true
+            self.timeRemainingUntilEnd = GRACE_TIME
+        end
     end
 end
 
@@ -150,11 +187,13 @@ function Round:SpawnObstacles()
     local bigMap = GetMapName() == "unranked" or GetMapName() == "ranked_3v3"
 
     --if bigMap then
-        mdls = {
-            "models/props_tree/cypress/tree_cypress010.vmdl",
-            "models/props_tree/cypress/tree_cypress008.vmdl"
-        }
+    mdls = {
+        "models/props_tree/cypress/tree_cypress010.vmdl",
+        "models/props_tree/cypress/tree_cypress008.vmdl"
+    }
     --end
+
+    local bombsToSpawn = RandomInt(1, 3) + (bigMap and 2 or 0)
 
     for i = 0, 3 do
         local centerAngle = math.pi / 2 * i + math.pi / 4
@@ -177,24 +216,51 @@ function Round:SpawnObstacles()
                 ent:Activate()
 
                 --if bigMap then
-                    ent:SetRenderColor(80 + RandomInt(-10, 10), 90 + RandomInt(-10, 10), 30)
+                ent:SetRenderColor(80 + RandomInt(-10, 10), 90 + RandomInt(-10, 10), 30)
                 --end
+
+                if bombsToSpawn > 0 and RandomFloat(0, 1) < 0.2 then
+                    bombsToSpawn = bombsToSpawn - 1
+
+                    Bomb(self, pos * (RandomFloat(0.75, 0.9))):Activate()
+                end
             end
         end
     end
 end
 
-function Round:CreateHeroes(spawnPoints)
+function Round:CreateHeroes(spawnPoints, isRanked)
     print("Creating heroes")
-    Shuffle(spawnPoints)
+    if not isRanked then
+        Shuffle(spawnPoints)
+    end
 
     local teamSpawned = {}
 
+    local teams = {}
+    for i, player in pairs(self.players) do
+        teams[player.team] = true
+    end
+
+    local teamCount = 0
+    for _, _ in pairs(teams) do
+        teamCount = teamCount + 1
+    end
+
+    local totalSpawns = #spawnPoints
+    local spawnOffset = RandomInt(0, totalSpawns)
+
     for i, player in pairs(self.players) do
         if player:IsConnected() and player.selectionLocked and player.selectedHero ~= nil then
+            local pointIndex = self:GetTeamInverted(player.team) + 1
+
+            if isRanked then
+                pointIndex = (self:GetTeamInverted(player.team) * math.floor(totalSpawns / teamCount) + spawnOffset) % totalSpawns + 1
+            end
+
             local offset = (teamSpawned[player.team] or 0)
             local hero = self:LoadHeroClass(player.selectedHero)
-            local unit = CreateUnitByName(player.selectedHero, spawnPoints[self:GetTeamInverted(player.team) + 1] + Vector(0, 128, 0) * offset, true, nil, nil, player.team)
+            local unit = CreateUnitByName(player.selectedHero, spawnPoints[pointIndex] + Vector(0, 128, 0) * offset, true, nil, nil, player.team)
             hero:SetUnit(unit)
             hero:SetFacing(-hero:GetPos())
 

@@ -23,7 +23,9 @@ var seasonAwards = {
     8: "npc_dota_hero_windrunner",
     9: "npc_dota_hero_earthshaker",
     10: "npc_dota_hero_skeleton_king",
-    11: "npc_dota_hero_pudge"
+    11: "npc_dota_hero_pudge",
+    12: "npc_dota_hero_antimage",
+    13: "npc_dota_hero_templar_assassin"
 };
 
 function PreloadPreview(hero, value, insertFirst) {

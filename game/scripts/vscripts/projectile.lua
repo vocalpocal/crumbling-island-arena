@@ -89,9 +89,18 @@ end
 function Projectile:Deflect(by, direction)
     direction.z = 0
     self.vel = direction:Normalized()
+    self.heroOverride = by
     self.owner = by.owner
 
     self:SetFacing(self.vel)
+end
+
+function Projectile:GetTrueHero()
+    if self.heroOverride then
+        return self.heroOverride
+    end
+
+    return self.hero
 end
 
 function Projectile:Update()
@@ -187,7 +196,7 @@ function Projectile:CollideWith(target)
     end
 
     if self.hitSound then
-        target:EmitSound(self.hitSound)
+        target:EmitSound(self.hitSound, target:GetPos())
     end
 
     if self.screenShake then
@@ -215,11 +224,6 @@ function Projectile:Damage(source)
     ParticleManager:SetParticleControl(dust, 0, self:GetPos())
     ParticleManager:SetParticleControl(dust, 1, self:GetPos())
     ParticleManager:ReleaseParticleIndex(dust)
-
-    local sign = ParticleManager:CreateParticle("particles/msg_fx/msg_deny.vpcf", PATTACH_CUSTOMORIGIN, mode)
-    ParticleManager:SetParticleControl(sign, 0, self:GetPos())
-    ParticleManager:SetParticleControl(sign, 3, Vector(200, 0, 0))
-    ParticleManager:ReleaseParticleIndex(sign)
 
     self:Destroy()
 end
