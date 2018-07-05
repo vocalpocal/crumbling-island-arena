@@ -339,15 +339,16 @@
 		"VoiceFile" ""
 		"DisableWearables" "1"
 		"Difficulty" "easy"
-		"Disabled" "true"
+		"Disabled" "false"
 		"Order" "34"
-		"Ability1" "dusa_q"
-		"Ability2" "dusa_w"
-		"Ability3" "dusa_e"
+		"Ability1" "sd_q"
+		"Ability2" "lc_w"
+		"Ability3" "sd_e"
 		"Ability4" "placeholder_emote"
 		"Ability5" "placeholder_taunt"
 		"Ability6" "dusa_r"
 		"Ultimate" "dusa_r"
+		"Ability7" "sd_a"
 	}
 
 	"npc_dota_hero_faceless_void" {

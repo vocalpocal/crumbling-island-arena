@@ -1,0 +1,22 @@
+"DOTAAbilities" {
+	"sd_a" {
+		"BaseClass" "ability_lua"
+		"ScriptFile" "abilities/sd/sd_a"
+		"AbilityBehavior" "DOTA_ABILITY_BEHAVIOR_POINT | DOTA_ABILITY_BEHAVIOR_IGNORE_BACKSWING"
+		"AbilityTextureName" "shadow_demon_shadow_poison"
+		"AbilityCooldown" "0.6"
+		"AbilityCastPoint" "0.15"
+		"Damage" "0"
+
+		"TargetingIndicator" {
+			"Type" "TARGETING_INDICATOR_LINE"
+			"MaxLength" "750"
+			"MinLength" "750"
+		}
+
+		"HoverIndicator" {
+			"Type" "TARGETING_INDICATOR_RANGE"
+			"Radius" "750"
+		}
+	}
+}

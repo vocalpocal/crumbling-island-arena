@@ -171,6 +171,47 @@ function TinkerUtil.PortalCancelAbility(ability, isPrimary, swapTo)
     Wrappers.NormalAbility(ability)
 end
 
+
+
+
+SDUtil = {}
+
+function SDUtil.Corrupt(hero, victim, ability, stacks)
+    local mod = victim:FindModifier("modifier_sd_corruption")
+    print(hero, victim, ability, stacks, mod)
+    if not mod then
+        mod = victim:AddNewModifier(hero, ability, "modifier_sd_corruption", {})
+    end
+    --local prestacks = mod:GetStackCount()
+    if mod then
+        print("mod found")
+        if stacks > 0 then
+            mod:SetStackCount(mod:GetStackCount() + stacks)
+        else
+            victim:Damage(hero, mod:GetStackCount(), true)
+            mod:Destroy()
+        end
+
+        --[[This section is for a shelved shadow demon design, originally stacks were supposed to deal 3 damage on every 3rd stack count.
+        local dmgcount = SDUtil.CorruptDamage(stacks, prestacks)
+        if dmgcount > 0 then
+            victim:Damage(hero, 3*dmgcount, true)
+        end]]
+    end
+    mod = nil
+
+end
+
+--[[This section is for a shelved shadow demon design, originally stacks were supposed to deal 3 damage on every 3rd stack count.
+
+function SDUtil.CorruptDamage(stacks, prestacks)
+    -- Calculates how much damage is to be dealt
+    -- makes sure that damage counter is correct on stack counts greater than 3
+    return math.floor((prestacks-(math.floor(prestacks/3)*3)+stacks)/3)
+end
+]]
+
+
 CMUtil = {}
 
 function CMUtil.IsFrozen(target)

@@ -1,0 +1,22 @@
+"DOTAAbilities" {
+	"sd_e" {
+		"BaseClass" "ability_lua"
+		"ScriptFile" "abilities/sd/sd_e"
+		"AbilityBehavior" "DOTA_ABILITY_BEHAVIOR_NO_TARGET | DOTA_ABILITY_BEHAVIOR_IMMEDIATE"
+		"AbilityTextureName" "shadow_demon_soul_catcher"
+		"AbilityCooldown" "8.0"
+		"Damage" "0"
+		
+		"TargetingIndicator" {
+			"Type" "TARGETING_INDICATOR_RANGE"
+			"Radius" "300"
+		}
+
+		"HoverIndicator" {
+			"Type" "TARGETING_INDICATOR_RANGE"
+			"Radius" "300"
+		}
+
+		
+	}
+}
