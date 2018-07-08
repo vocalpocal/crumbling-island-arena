@@ -158,6 +158,11 @@
 #base "abilities\shadow_demon\sd_a.txt"
 #base "abilities\shadow_demon\sd_q.txt"
 #base "abilities\shadow_demon\sd_e.txt"
+#base "abilities\nevermore\nevermore_q.txt"
+#base "abilities\nevermore\nevermore_w.txt"
+#base "abilities\nevermore\nevermore_e.txt"
+#base "abilities\nevermore\nevermore_r.txt"
+#base "abilities\nevermore\nevermore_a.txt"
 
 
 "DOTAAbilities" {
